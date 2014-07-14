@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Playground</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <input type="text" />
+</body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="js/bloodhound.min.js"></script>
+<script src="js/bloodhound_handler.js"></script>
+<script>
+  // var states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
+  //   'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii',
+  //   'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana',
+  //   'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
+  //   'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+  //   'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota',
+  //   'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
+  //   'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+  //   'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+  // ];
+
+  var states = ["Commandos: Behind Enemy Lines", "Commandos: Beyond the Call of Duty",
+                "Commandos 2: Men of Courage", "Commandos 3: Destination Berlin",
+                "Half-life 2", "Half-life 3 Confirmed", "Not Commandos"];
+
+  var engine = new Bloodhound({
+    name : 'Search',
+    datumTokenizer : function(d) {
+      return Bloodhound.tokenizers.whitespace(d.value);
+    },
+    queryTokenizer : Bloodhound.tokenizers.whitespace,
+    local : $.map(states, function(state) { return { value: state }; }),
+    limit: 30
+  });
+
+  engine.initialize();
+
+  engine.get("Alab", function(datum){
+    console.log(datum);
+  });
+
+  var handler = new Bloodhound_Handler({
+    element: $('body :input'),
+    engine: engine,
+    close:function(e){console.log('esc pressed')},
+    select:function(e, item){console.log(item.value + ' selected')},
+    focus:function(e, item){console.log('focused on ' + item.value)},
+    response:function(e, items){console.log('response:'); console.log(items)}
+  });
+
+</script>
+</html>

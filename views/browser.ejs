@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Steam Tag Browser</title>
+
+  <meta name="description" content="A store tag based browser for your Steam library">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="css/normalize.css" rel="stylesheet" media="all">
+  <link href="css/styles.css" rel="stylesheet" media="all">
+</head>
+<body>
+
+  <header role="banner">
+  </header>
+
+  <main role="main">
+
+    <!-- Tag list -->
+    <section id="section-tags">
+
+      <nav role="navigation" id="tag-nav">
+        <input type="text" id="tag-search" placeholder="Search Tags"/>
+        <a href="" id="tag-clear" title="Clear search">
+            <i class="fa fa-times-circle fa-2x"></i>
+        </a>
+        <a href="" id="tag-consolidate" title="Consolidate tags up">
+          <i class="fa fa-chevron-circle-up fa-2x"></i>
+        </a>
+      </nav>
+
+      <ul id="tag-list">
+      </ul>
+    </section>
+
+    <section id="section-games">
+
+      <ul id="game-list"></ul>
+
+      <div id="game-popup">
+        <a href="" id="tag-link">TAGS</a>
+        <a href="" id="play-link">PLAY</a>
+      </div>
+
+      <nav role="navigation" id="games-nav">
+        <input type="text" id="games-search" placeholder="Search Games" />
+        <a href="" id="games-clear">
+          <i class="fa fa-times-circle fa-2x"></i>
+        </a>
+        <span id="games-stats"></span>
+      </nav>
+
+    </section>
+  </main>
+
+  <footer id="footer" role="contentinfo">
+    <div id="info">
+
+      <div id="step1">
+      </div>
+
+      <div id="step2">
+        <span id="lib-counter">Fetching library data</span> <img src="res/716.GIF" />
+      </div>
+
+      <div id="step3">
+        <a href="#" id="ref-lib" title="Refresh"><i class="fa fa-refresh fa-lg"></i></a>
+        <a href="/logout" id="clear-data" title="Logout"><i class="fa fa-power-off fa-lg"></i></a>
+      </div>
+
+      <p><a href="" id="open-about">About this thing</a></p>
+
+      <div id="about" class="modal">
+      <p>
+        Browse your Steam library by the tags on the store. I don't keep any
+        information you pass to the server. This uses local storage on your browser to cache data.
+      </p>
+      <p>
+        A thing made by Jeiel (<a href="http://subjectnerdagreement.com">@chemikhazi</a>).<br/>
+      </p>
+      </div>
+    </div>
+  </footer>
+
+<% if (user === undefined) {%>
+    <div id="welcome" class="modal">
+      <h1>Steam Tag Browser</h1>
+      <p>
+        A tag based browser for your Steam game library.
+      </p>
+      <a href="/login/steam"><img src="res/sits_small.png" /></a>
+    </div>
+<%} else {%>
+  <input type="hidden" id="steam-id" value="<%= user.steamid %>" />
+<% } %>
+
+</body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="js/bloodhound.min.js"></script>
+<script src="js/bloodhound_handler.js"></script>
+<script src="js/minimodal.js"></script>
+<script src="js/tag-browser.js"></script>
+</html>
