@@ -1,14 +1,70 @@
 var fetch = require('./fetch_handler');
 var request = require('request');
+var fs = require('fs');
+var scrape_conf = require('../config/scrape')
 
 var scrapeGameData = function(params, appid, api_obj, callback){
 
-  console.log("Starting scrape for " + appid);
   var gameData = {
     appid : api_obj[appid].data.steam_appid,
     name : api_obj[appid].data.name,
     header : api_obj[appid].data.header_image
   }
+
+  var newFetch = false;
+
+  var jsonPath = scrape_conf.DataPath + appid + '.json';
+
+  if (fs.existsSync(jsonPath)){
+    fs.stat(jsonPath, function(err, stats){
+      if (err){
+        newFetch = true;
+      }
+      else{
+        // Check if expired
+        var lastModified = new Date(stats.mtime) - Date.now();
+        var expireCheck = new Date(0);
+        if (scrape_conf.ExpireDays !== undefined)
+          expireCheck.setDate(scrape_conf.ExpireDays + 1);
+        if (scrape_conf.ExpireHours !== undefined)
+          expireCheck.setHours(scrape_conf.ExpireHours);
+
+        // Expired, please fetch new copy
+        if (lastModified > expireCheck)
+          newFetch = true;
+      }
+    });
+  }
+  else{
+    newFetch = true;
+  }
+
+  if (newFetch){
+    // This function calls the callback...
+    runPageScrape(appid, gameData, callback);
+  } else {
+    // Use data from file cache, read file
+    fs.readFile(jsonPath, function(err, data){
+      if (err) // Any error, send back error
+        callback({appid: appid, error: true});
+      else {
+        // Send tag data back using file data
+        var tagArray = JSON.parse(data);
+        gameData.tags = parseGameTags(tagArray);
+        callback({
+          appid: appid,
+          gamedata: gameData,
+          tags: tagArray
+        });
+      }
+    });
+  }
+};
+
+var runPageScrape = function(appid, gameData, callback){
+  console.log("Starting scrape for " + appid);
+  if (fs.existsSync(scrape_conf.DataPath) == false)
+    fs.mkdirSync(scrape_conf.DataPath);
 
   var url = 'http://store.steampowered.com/app/' + appid;
 
@@ -40,8 +96,15 @@ var scrapeGameData = function(params, appid, api_obj, callback){
         // open = body.indexOf('[');
         // close = body.indexOf(']');
         // var userTags = body.substring(open, close + 1);
+
         var tagArray = JSON.parse(gameTags);
         gameData.tags = parseGameTags(tagArray);
+
+        var tagPath = scrape_conf.DataPath + appid + '.json';
+        fs.writeFile(tagPath, gameTags, function(err){
+          if (err)
+            console.log(err);
+        });
 
         callback({
           appid: appid,
@@ -50,9 +113,8 @@ var scrapeGameData = function(params, appid, api_obj, callback){
         });
       }
   });
+}
 
-  return gameData;
-};
 
 var parseGameTags = function(tagArray){
   var tags = [];
