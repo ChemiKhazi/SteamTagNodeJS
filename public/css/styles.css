@@ -1,26 +1,18 @@
-/* ---------------------------------------------------------
-   HTML5 Bones
-   This stylesheet contains print styling and a section for
-   you to simply add your own. This is a basic template
-   after all.
-   ---------------------------------------------------------*/
-	body {
 
-	}
 	/* Default link styling */
-	a:link { color:#b8b6b4; }
-	a:visited { color:#b8b6b4; }
-	a:hover, a:focus { color:#939291; }
-	a:active { color:#fb0e02; }
+a:link { color:#b8b6b4; }
+a:visited { color:#b8b6b4; }
+a:hover, a:focus { color:#939291; }
+a:active { color:#fb0e02; }
 
 /* ---------------------------------------------------------
-   Author's styles
-   ---------------------------------------------------------*/
-	body {
-		background-color: #0e0e0e;
-		color: #b8b6b4;
-		font-size: 14px;
-	}
+ Author's styles
+ ---------------------------------------------------------*/
+body {
+	background-color: #0e0e0e;
+	color: #b8b6b4;
+	font-size: 14px;
+}
 
 input {
 	background: #272726;
@@ -35,15 +27,6 @@ input {
 input:focus
 {
 	font-style: normal;
-}
-button {
-	background: #272726;
-	color: #8b887f;
-	border: none;
-	height: 28px;
-	padding: 2px;
-	font-size: 14px;
-	border-radius: 5px;
 }
 
 #tag-nav, #games-nav {
@@ -91,23 +74,32 @@ button {
 
 #tag-list li
 {
-	display-type: inline;
+	display: inline;
 	float: left;
-	line-height: 19px;
+	vertical-align: center;
 	font-size: 12px;
 	box-shadow: 1px 1px 0 0 #000000;
 	list-style: none;
-	width: 160px;
+	width: 190px;
+	max-width: 190px;
+	margin: 2px;
+	padding: 0px;
+}
+
+#tag-list li p
+{
+	display: inline-block;
 	max-width: 160px;
 	overflow: hidden;
-	margin: 2px;
 	padding: 2px 7px;
+	margin: 3px 0px 2px 0px;
 }
 
 .tag
 {
 	background-color: #384959;
 	color: #b0aeac;
+	position: relative;
 }
 
 .tag.highlighted
@@ -119,6 +111,17 @@ button {
 .tag.unfocused
 {
 	background-color: #1c2832;
+}
+
+.tag i {
+	position: absolute;
+	right: 5px;
+	top: 7px;
+	color: #1c2832;
+}
+
+.tag.highlighted i {
+	display: none;
 }
 
 #tag-list::-webkit-scrollbar-track
@@ -181,7 +184,6 @@ ul.list-view #game-popup
 	text-align: left;
 	margin: 1px 0;
 	border: none;
-	border-radius: 0;
 }
 
 #section-games ul.list-view p

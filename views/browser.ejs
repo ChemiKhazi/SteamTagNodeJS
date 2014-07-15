@@ -81,19 +81,24 @@
       <p>
         A thing made by Jeiel (<a href="http://subjectnerdagreement.com">@chemikhazi</a>).<br/>
       </p>
+      <p>
+        <a href="https://github.com/ChemiKhazi/SteamTagNodeJS">Open source at Github.</a>
+      </p>
       </div>
     </div>
   </footer>
 
 <% if (user === undefined) {%>
-    <div id="welcome" class="modal">
-      <h1>Steam Tag Browser</h1>
-      <p>
-        A tag based browser for your Steam game library.
-      </p>
-      <a href="/login/steam"><img src="res/sits_small.png" /></a>
-    </div>
+  <!-- Login modal  -->
+  <div id="welcome" class="modal">
+    <h1>Steam Tag Browser</h1>
+    <p>
+      A tag based browser for your Steam game library.
+    </p>
+    <a href="/login/steam"><img src="res/sits_small.png" /></a>
+  </div>
 <%} else {%>
+  <!-- Logged in, hidden input containing steam id -->
   <input type="hidden" id="steam-id" value="<%= user.steamid %>" />
 <% } %>
 

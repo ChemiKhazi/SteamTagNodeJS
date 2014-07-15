@@ -12,7 +12,6 @@ self.addEventListener('message', function(e) {
     if (gamePass)
       passGames.push(checkGame);
   });
-
   self.postMessage(passGames);
 
 }, false);

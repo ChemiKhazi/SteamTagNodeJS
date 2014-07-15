@@ -30,6 +30,7 @@ var initPage = function()
               });
 
   $GamePopup.hide();
+  $State.expectedBatches = -1;
 
   $('#games-search').prop('disabled', true)
                     .blur(function(e) {resetFocus()});
@@ -309,48 +310,16 @@ var setSelectedGame = function(event)
 
 var tagClicked = function(event)
 {
+  if ($State.expectedBatches != -1)
+    return;
+
   var tag = $TagData[parseInt(event.data)];
   var tagItem = $('#tag'+tag.tagid);
 
   $GamePopup.hide();
 
-  if ($State.filterTags === undefined)
-    $State.filterTags = [];
-
-  // No filter, just add and return
-  if ($State.filterTags.length == 0)
-  {
-    $State.filterTags.push(tag);
-    filterByTags();
-    return;
-  }
-
-  var tagIndex = $State.filterTags.indexOf(tag);
-  // Tag not found in filter
-  if (tagIndex == -1)
-  {
-    // Check if the item we clicked on is unfocused
-    if (tagItem.hasClass('unfocused'))
-      // If unfocused, clear the filter tags
-      $State.filterTags = [tag];
-    else
-      $State.filterTags.push(tag);
-    filterByTags();
-  }
-  // Tag found in filter, remove
-  else
-  {
-    $State.filterTags.splice(tagIndex, 1);
-    // If removing tag still leaves things to filter by, do it
-    if ($State.filterTags.length > 0)
-    {
-      tagItem.removeClass('highlighted');
-      filterByTags();
-    }
-    // otherwise, just reset focus
-    else
-      resetFocus();
-  }
+  $State.filterTags = [tag];
+  filterByTags();
 };
 
 var filterByTags = function()
@@ -360,6 +329,8 @@ var filterByTags = function()
 
   var filterTags = [];
   var gameIdPool = [];
+
+  $('.tag').removeClass('highlighted unfocused');
 
   // Loop through the filter list
   $State.filterTags.forEach(function(addTag, index, array){
@@ -376,68 +347,50 @@ var filterByTags = function()
     });
   });
 
-  //// Err, attempt at worker pooling
-  // var idSplit = [];
-  // var idBatch = []
-  // gameIdPool.forEach(function(id, index, array)
-  // {
-  //   if (idBatch.length < 10)
-  //   {
-  //     idBatch.push(id);
-  //   }
-  //   else
-  //   {
-  //     idSplit.push(idBatch);
-  //     idBatch = [];
-  //   }
-  // });
-  //
-  // idSplit.forEach(function(batch, index, array){
-  //   var gameFilter = new Worker('game-filter.js');
-  //
-  //   gameFilter.addEventListener(function(e){
-  //     passGames.concat(e);
-  //   }, false);
-  //
-  //   gameFilter.postMessage({"games":$GameData, "filters":filterTags, "batch":batch});
-  // });
-
-  var passGames = [];
-
-  // Now loop through game ids
-  gameIdPool.forEach(function(appid, index, array){
-    var checkGame = $GameData[appid];
-    var gamePass = true;
-    // Check that the filter tags are inside this game's tags
-    filterTags.forEach(function(filterTag, i, arr){
-      gamePass = gamePass && checkGame.tags.indexOf(filterTag) > -1;
-    });
-    if (gamePass)
-      passGames.push(checkGame);
-  });
-
-  // Unfocus the not highlighted tags
-  $('.tag').not('highlighted').addClass('unfocused');
-
-  var scrollTo = 0;
+  // Unfocus not highlighted tags
+  $('.tag').not('.highlighted').addClass('unfocused');
   // Unfocus all games
-  $('.game').addClass('unfocused').removeClass('selected')
-  // Loop through the passed games...
-  passGames.forEach(function(game, index, array){
-    // Game passed, move it up the selected list,
-    // also get the position to scroll to
-    scrollTo = $('#appid'+game.appid).prependTo($GameList).addClass('selected').removeClass('unfocused')
-                                      .offset().top;
-    // Refocus the tags for the games that passed the filter
-    game.tags.forEach(function(tagid, index, array){
-      $('#tag'+tagid).removeClass('unfocused');
-    })
-  });
+  $('.game').addClass('unfocused').removeClass('selected');
 
-  $GamesStats.html("Found " + passGames.length + " titles");
+  // Attempt at worker pooling so tag interaction won't take a hit
+  $State.passGames = [];
+  $State.expectedBatches = 1;
+  var gameFilter = new Worker('./js/game-filter.js');
 
-  $('html, body').animate({scrollTop: 0}, 100);
+  gameFilter.addEventListener("message", recieveFilteredGames, false);
+  gameFilter.postMessage({"games":$GameData,
+                          "filters":filterTags,
+                          "batch":gameIdPool});
 };
+
+var recieveFilteredGames = function(e) {
+  $State.passGames = $State.passGames.concat(e.data);
+  $State.expectedBatches--;
+
+  if ($State.expectedBatches == 0){
+
+    // Loop through the passed games...
+    $State.passGames.forEach(function(game, index, array){
+      // Game passed, move it up the selected list,
+      // also get the position to scroll to
+      $('#appid'+game.appid).prependTo($GameList)
+                            .addClass('selected')
+                            .removeClass('unfocused');
+      // Refocus the tags for the games that passed the filter
+      game.tags.forEach(function(tagid, index, array){
+        $('#tag'+tagid).removeClass('unfocused')
+            .children('div')
+            .children('i')
+            .addClass('fa-plus-square-o');
+      });
+    });
+
+    $GamesStats.html("Found " + $State.passGames.length + " titles");
+
+    $('html, body').animate({scrollTop: 0}, 100);
+    $State.expectedBatches = -1;
+  }
+}
 
 var consolidateTags = function()
 {
@@ -645,8 +598,14 @@ var setupTagEntry = function(tagid)
   var tag = $TagData[tagid];
   if (tag === undefined)
     return;
-  $TagList.append('<li id="tag'+tag.tagid+'" class="tag">'+tag.name+'</li>');
-  $('#tag'+tag.tagid).click(tag.tagid, tagClicked);
+  var tagItem = $('<li>').click(tag.tagid, tagClicked)
+                        .prop('id', 'tag'+tag.tagid)
+                        .addClass('tag');
+  var tagToggle = $('<div>').addClass('tag-modify')
+                            .append($('<i>').addClass('fa fa-lg'))
+  tagItem.append($('<p>').html(tag.name))
+          .append(tagToggle);
+  $TagList.append(tagItem);
 };
 /* End data retrieval/population */
 
