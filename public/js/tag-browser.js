@@ -222,14 +222,18 @@ var setupSearch = function()
   $('#tag-search').on('keyup', {
       engine: $Search.tags, list: [], index: -1,
       close: function(e){
+        e.target.value = "";
+        e.target.blur();
         if ($State.filterTags.length == 0)
           resetFocus();
       },
       select: function(e, data){
         e.target.value = "";
+        e.target.blur();
         $State.filterTags = [$TagData[data.value]];
-        filterByTags();
-        consolidateTags();
+        filterByTags(function(){
+            consolidateTags();
+          });
         event.preventDefault();
       },
       focus: function(e,data){
@@ -308,34 +312,79 @@ var setSelectedGame = function(event)
   $("#play-link").prop("href", "steam://run/" + game.appid);
 };
 
+var tagModifyClicked = function(event) {
+  if ($State.expectedBatches != -1)
+    return;
+  console.log('tag modify');
+  var tag = $TagData[parseInt(event.data)];
+  var tagItem = $('#tag'+tag.tagid);
+
+  var removeIndex = $State.filterTags.indexOf(tag);
+  if (removeIndex > -1) {
+    if ($State.filterTags.length > 1)
+      $State.filterTags.splice(removeIndex, 1);
+  }
+  else{
+    $State.filterTags.push(tag);
+  }
+
+  filterByTags();
+  event.preventDefault();
+}
+
 var tagClicked = function(event)
 {
   if ($State.expectedBatches != -1)
     return;
-
+  console.log('tag clicked');
   var tag = $TagData[parseInt(event.data)];
   var tagItem = $('#tag'+tag.tagid);
 
-  $GamePopup.hide();
+  if ($State.filterTags === undefined)
+    $State.filterTags = [];
 
-  $State.filterTags = [tag];
-  filterByTags();
+  if ($State.filterTags.length == 1 && $State.filterTags.indexOf(tag) > -1) {
+    resetFocus();
+  }
+  else {
+    $State.filterTags = [tag];
+    filterByTags();
+  }
 };
 
-var filterByTags = function()
+var filterByTags = function(callback)
 {
   if ($State.filterTags === undefined)
     return;
 
+  $GamePopup.hide();
+
   var filterTags = [];
   var gameIdPool = [];
+  var filterString = "";
 
-  $('.tag').removeClass('highlighted unfocused');
+  $('.tag').removeClass('highlighted unfocused multiselected')
+        .children('.tag-modify').children('i') // Select the modify icon
+        .removeClass('fa-plus-square fa-minus-square') // Reset the icon
+        .addClass('fa-plus-square');
+
+  var addClass = 'highlighted';
+  var modIcon = 'fa-plus-square';
+  if ($State.filterTags.length > 1){
+    addClass = 'multiselected';
+    modIcon = 'fa-minus-square';
+  }
 
   // Loop through the filter list
   $State.filterTags.forEach(function(addTag, index, array){
-    // Highlight the filter tags
-    $('#tag'+addTag.tagid).addClass('highlighted');
+    $('#tag'+addTag.tagid).addClass(addClass)    // Highlight the filter tags
+          .children('.tag-modify').children('i') // Select the icon
+          .addClass(modIcon) // Add the final icon
+
+    if (filterString.length > 0)
+      filterString += ', ';
+    filterString += addTag.name;
+
     // Add to the list we'll use to filter by tags
     filterTags.push(addTag.tagid);
     // Loop through the game list in each tag
@@ -347,27 +396,32 @@ var filterByTags = function()
     });
   });
 
-  // Unfocus not highlighted tags
-  $('.tag').not('.highlighted').addClass('unfocused');
-  // Unfocus all games
-  $('.game').addClass('unfocused').removeClass('selected');
-
-  // Attempt at worker pooling so tag interaction won't take a hit
+  // Asynchronous filtering of games
   $State.passGames = [];
   $State.expectedBatches = 1;
   var gameFilter = new Worker('./js/game-filter.js');
-
-  gameFilter.addEventListener("message", recieveFilteredGames, false);
-  gameFilter.postMessage({"games":$GameData,
+  gameFilter.addEventListener("message", function(e){
+    recieveFilteredGames(e);
+    if (callback !== undefined)
+      callback();
+  }, false);
+  gameFilter.postMessage({
+                          "games":$GameData,
                           "filters":filterTags,
-                          "batch":gameIdPool});
+                          "batch":gameIdPool
+                          });
 };
 
 var recieveFilteredGames = function(e) {
-  $State.passGames = $State.passGames.concat(e.data);
+  $State.passGames = $State.passGames.concat(e.data.games);
   $State.expectedBatches--;
 
   if ($State.expectedBatches == 0){
+
+    // Unfocus not highlighted tags
+    $('.tag').not('.highlighted').addClass('unfocused');
+    // Unfocus all games
+    $('.game').addClass('unfocused').removeClass('selected');
 
     // Loop through the passed games...
     $State.passGames.forEach(function(game, index, array){
@@ -381,7 +435,7 @@ var recieveFilteredGames = function(e) {
         $('#tag'+tagid).removeClass('unfocused')
             .children('div')
             .children('i')
-            .addClass('fa-plus-square-o');
+            .addClass('fa-plus-square');
       });
     });
 
@@ -395,7 +449,10 @@ var recieveFilteredGames = function(e) {
 var consolidateTags = function()
 {
   $('.tag').not('.unfocused').prependTo($TagList);
-  $('.tag.highlighted').prependTo($TagList);
+  if ($State.filterTags.length > 1)
+    $('.tag.multiselected').prependTo($TagList);
+  else
+    $('.tag.highlighted').prependTo($TagList);
   $TagList.animate({scrollTop:0}, 200);
 };
 
@@ -602,6 +659,7 @@ var setupTagEntry = function(tagid)
                         .prop('id', 'tag'+tag.tagid)
                         .addClass('tag');
   var tagToggle = $('<div>').addClass('tag-modify')
+                            .click(tag.tagid, tagModifyClicked)
                             .append($('<i>').addClass('fa fa-lg'))
   tagItem.append($('<p>').html(tag.name))
           .append(tagToggle);
