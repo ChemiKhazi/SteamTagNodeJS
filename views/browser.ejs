@@ -34,6 +34,8 @@
 
       <ul id="tag-list">
       </ul>
+
+      <div id="tag-footer"></div>
     </section>
 
     <section id="section-games">
@@ -57,36 +59,36 @@
   </main>
 
   <footer id="footer" role="contentinfo">
-    <div id="info">
-
-      <div id="step1">
+      <div id="info">
+        <div id="step1">
+        </div>
+        <div id="step2">
+          <span id="lib-counter">Fetching library data</span> <i class="fa fa-circle-o-notch fa-spin"></i>
+        </div>
+        <div id="step3">
+          <a href="#" id="ref-lib" title="Refresh"><i class="fa fa-refresh fa-lg"></i></a>
+          <a href="/logout" id="clear-data" title="Logout"><i class="fa fa-power-off fa-lg"></i></a>
+        </div>
+        <div id="info-about">
+          <a href="" id="open-about" title="About">
+            <i class="fa fa-question fa-lg"></i>
+          </a>
+        </div>
       </div>
-
-      <div id="step2">
-        <span id="lib-counter">Fetching library data</span> <img src="res/716.GIF" />
-      </div>
-
-      <div id="step3">
-        <a href="#" id="ref-lib" title="Refresh"><i class="fa fa-refresh fa-lg"></i></a>
-        <a href="/logout" id="clear-data" title="Logout"><i class="fa fa-power-off fa-lg"></i></a>
-      </div>
-
-      <p><a href="" id="open-about">About this thing</a></p>
-
-      <div id="about" class="modal">
-      <p>
-        Browse your Steam library by the tags on the store. I don't keep any
-        information you pass to the server. This uses local storage on your browser to cache data.
-      </p>
-      <p>
-        A thing made by Jeiel (<a href="http://subjectnerdagreement.com">@chemikhazi</a>).<br/>
-      </p>
-      <p>
-        <a href="https://github.com/ChemiKhazi/SteamTagNodeJS">Open source at Github.</a>
-      </p>
-      </div>
-    </div>
   </footer>
+
+<div id="about" class="modal">
+<p>
+  Browse your Steam library by the tags on the store. I don't keep any
+  information you pass to the server. This uses local storage on your browser to cache data.
+</p>
+<p>
+  A thing made by Jeiel (<a href="http://subjectnerdagreement.com">@chemikhazi</a>).<br/>
+</p>
+<p>
+  <a href="https://github.com/ChemiKhazi/SteamTagNodeJS">Open source at Github.</a>
+</p>
+</div>
 
 <% if (user === undefined) {%>
   <!-- Login modal  -->

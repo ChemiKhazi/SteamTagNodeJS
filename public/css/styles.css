@@ -37,6 +37,7 @@ input:focus
 	padding-top: 10px;
 	width: 100%;
 	height: 30px;
+	flex: none;
 }
 #tag-nav {
 	padding-left: 15px;
@@ -61,15 +62,21 @@ input:focus
 	height: 100%;
 	margin: 0px;;
 	position: fixed;
+	display: flex;
+	flex-direction: column;
 }
 
 #tag-list
 {
 	padding: 0px;
 	overflow: auto;
-	flex-direction: column;
-	height: 80%;
 	margin: 50px 0 0 10px;
+}
+
+#tag-footer
+{
+	height: 50px;
+	flex: none;
 }
 
 #tag-list li
@@ -134,24 +141,6 @@ input:focus
 
 .tag.highlighted i {
 	display: none;
-}
-
-#tag-list::-webkit-scrollbar-track
-{
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-	background-color: #272726;
-}
-
-#tag-list::-webkit-scrollbar
-{
-	width: 14px;
-	background-color: #0e0e0e;
-}
-
-#tag-list::-webkit-scrollbar-thumb
-{
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-	background-color: #64625c;
 }
 
 #section-games
@@ -297,14 +286,14 @@ ul.list-view #game-popup
 	text-shadow: #000 1px 2px;
 	box-shadow: 1px 1px 0 0 #000000;
 	background: rgb(160,160,160);
-/* Old browsers */
-background: -moz-linear-gradient(top,  rgba(160,160,160,1) 0%, rgba(114,114,114,1) 40%, rgba(102,102,102,1) 100%); /* FF3.6+ */
-background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(160,160,160,1)), color-stop(40%,rgba(114,114,114,1)), color-stop(100%,rgba(102,102,102,1))); /* Chrome,Safari4+ */
-background: -webkit-linear-gradient(top,  rgba(160,160,160,1) 0%,rgba(114,114,114,1) 40%,rgba(102,102,102,1) 100%); /* Chrome10+,Safari5.1+ */
-background: -o-linear-gradient(top,  rgba(160,160,160,1) 0%,rgba(114,114,114,1) 40%,rgba(102,102,102,1) 100%); /* Opera 11.10+ */
-background: -ms-linear-gradient(top,  rgba(160,160,160,1) 0%,rgba(114,114,114,1) 40%,rgba(102,102,102,1) 100%); /* IE10+ */
-background: linear-gradient(to bottom,  rgba(160,160,160,1) 0%,rgba(114,114,114,1) 40%,rgba(102,102,102,1) 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a0a0a0', endColorstr='#666666',GradientType=0 ); /* IE6-9 */
+	/* Old browsers */
+	background: -moz-linear-gradient(top,  rgba(160,160,160,1) 0%, rgba(114,114,114,1) 40%, rgba(102,102,102,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(160,160,160,1)), color-stop(40%,rgba(114,114,114,1)), color-stop(100%,rgba(102,102,102,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  rgba(160,160,160,1) 0%,rgba(114,114,114,1) 40%,rgba(102,102,102,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  rgba(160,160,160,1) 0%,rgba(114,114,114,1) 40%,rgba(102,102,102,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  rgba(160,160,160,1) 0%,rgba(114,114,114,1) 40%,rgba(102,102,102,1) 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  rgba(160,160,160,1) 0%,rgba(114,114,114,1) 40%,rgba(102,102,102,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a0a0a0', endColorstr='#666666',GradientType=0 ); /* IE6-9 */
 }
 
 #game-popup #tag-link
@@ -316,6 +305,26 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a0a0a0', end
 	font-size: 10px;
 	border-radius: 0 0 5px 0;
 	background: #445c1d;
+}
+
+#info {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+}
+#info div {
+	flex: 2;
+	display: flex;
+	flex-direction: row;
+	text-align: center;
+}
+#info #info-about {
+	flex: none;
+	width: 25px;
+}
+#info div a {
+	margin: 0 10px;
+	flex: 1;
 }
 
 .modal{
@@ -331,9 +340,28 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a0a0a0', end
 	bottom: 0px;
 	left: 0px;
 	width: 220px;
-	height: 50px;
+	height: 25px;
 	background: #000;
 	padding: 0.5em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #272726;
+}
+
+::-webkit-scrollbar
+{
+	width: 14px;
+	background-color: #0e0e0e;
+}
+
+::-webkit-scrollbar-thumb
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #64625c;
 }
 
 /* Icon styling */
